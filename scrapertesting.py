@@ -18,7 +18,9 @@ text = article.text
 text = text.split(" ")  # Remove leading/trailing whitespace
 
 
-text = [re.sub(r'\s+', ' ', word) for word in text] # Replace multiple spaces with a single space
+# Fix the text. Some is jumbled and it is taking links that are in the middle. Remove those
+
+text = [re.sub(r'\s+', ' ', word) for word in text] # Remove newline
 text = [re.sub(r'[^\w\s+]', '', word) for word in text]  # Remove punctuation and special characters
 text = [word.lower() for word in text] # Convert to lowercase 
 
