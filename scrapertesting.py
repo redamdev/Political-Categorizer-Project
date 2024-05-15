@@ -24,4 +24,6 @@ text = [re.sub(r'\s+', ' ', word) for word in text] # Remove newline
 text = [re.sub(r'[^\w\s+]', '', word) for word in text]  # Remove punctuation and special characters
 text = [word.lower() for word in text] # Convert to lowercase 
 
-print(text)
+for word in text:
+    print(word)
+
