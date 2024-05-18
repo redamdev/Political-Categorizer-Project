@@ -1,3 +1,5 @@
+#@authors: Nermeen R, Harshitha M
+
 import newspaper
 from newspaper import Article
 import re
