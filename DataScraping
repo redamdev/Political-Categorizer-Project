@@ -1,0 +1,148 @@
+# @authors: Harshitha M, Nermeen R
+
+
+# Import necessary libraries
+import newspaper
+import nltk
+import string
+from newspaper import Article
+from bs4 import BeautifulSoup
+from nltk.corpus import stopwords
+
+
+
+#############################################################################################################
+#############################################################################################################
+#############################################################################################################
+####################################### SECTION 1: INDIVIDUAL URL ###########################################
+#############################################################################################################
+#############################################################################################################
+#############################################################################################################
+
+# Function that scrapes a single article using newspaper3k library
+def scrapeSingleArticle(websiteUrl):
+    # Exception Handling to catch errors
+    try:        
+        # Creates an article object of the website
+        article = Article(websiteUrl)
+
+        # Downloads & parses the article
+        article.download()
+        article.parse()
+
+        # Extracts title, then performs text cleaning
+        titleTag = article.title
+        if titleTag:
+            title = titleTag.strip()
+        else:
+           title = 'Title not found.'
+        
+        # Extracts the date published, then performs text cleaning
+        dateTag = article.publish_date
+        if dateTag:
+            date = dateTag.strftime('%Y-%m-%d')
+        else:
+            date = 'Date not found.'
+
+        # Extracts publisher, then performs text cleaning
+        publisher = article.source_url.strip()
+        if publisher:
+            publisher = publisher
+        else:
+            publisher = 'Publisher not found.'
+            
+        # Extracts body of the article
+        body = article.text.strip()
+        if body:
+            body = body
+        else:
+            body = 'Body not found.'
+
+        # Creates a set of stop words (generic words)
+        nltk.download('stopwords')
+        stopWords = set(stopwords.words('english'))
+
+        # Removes stop words from the body of the article
+        bodyWords = body.split()
+        filteredBody = [word for word in bodyWords if word.lower() not in stopWords]
+        body = ' '.join(filteredBody)
+
+        return title, date, publisher, body
+
+    # Exception Case 1: Unable to retrieve article
+    except newspaper.article.ArticleException:
+        print(f"Provided URL [{websiteUrl}] not found.")
+        return 'No title' , 'No date' , 'No publisher' , 'No body'
+
+    # Exception Case 2: All other errors
+    except Exception as err:
+        print(f"An unexpected error occurred: {err}")
+        return 'No title' , 'No date' , 'No publisher' , 'No body'
+
+ 
+# Testing the scrapeSingleArticle(websiteUrl) function
+url = 'https://www.foxnews.com/us/maryland-woman-pleads-guilty-conspiracy-alleged-extremist-plot-attack-baltimore-power-grid'
+url1 = 'https://www.allsides.com/story/supreme-court-supreme-courts-cfpb-ruling-highlights-disagreements-delegating-congressional'
+
+title, date, publisher, body = scrapeSingleArticle(url)
+
+if title:
+    print("Title:", title)
+    print("Publisher:", publisher)
+    print("Date Published:", date)
+    print("Body:", body)
+else:
+    print("Failed to extract article information.")
+
+
+
+#############################################################################################################
+#############################################################################################################
+#############################################################################################################
+################################### SECTION 2: MODEL TRAINING RESOURCES #####################################
+#############################################################################################################
+#############################################################################################################
+#############################################################################################################
+
+# Function that scrapes all articles from a given webpage
+def scrapeAllArticles(webpageUrl):
+    # Creates an article object of the website
+    '''
+        memoize_articles=False to avoid duplicate articles 
+        From: newspaper3k Docs
+        By default, newspaper caches all previously extracted articles and eliminates any article which it has already extracted.
+        This feature exists to prevent duplicate articles and to increase extraction speed.
+    '''
+    webpage = newspaper.build(webpageUrl, memoize_articles=False)  
+    
+    # Checks if there are any articles in the webpage
+    if not webpage.articles:
+        print(f"Articles not found for {webpageUrl}")
+        return
+    
+    # List to be returned by the function
+    articlesInfo = []
+
+    # Iterates over each article in the webpage
+    for article in webpage.articles:
+        print(f"URL #{webpage.articles.index(article) + 1} from webpage: {article.url}")
+        
+        # Calls the scrapeSingleArticle() function to scrape the article
+        currentArticle = article.url
+        title, date, publisher, body = scrapeSingleArticle(currentArticle)
+
+        # Appends the extracted information to the list
+        if title != 'Non-English article': 
+            articlesInfo.append({
+                'title': title, 
+                'date': date, 
+                'publisher': publisher, 
+                'body': body
+            })
+        
+    return articlesInfo
+
+
+# Testing the scrapeAllArticles(webpageUrl) function
+webpageUrl1 = 'http://cnn.com'
+scrapeAllArticles(webpageUrl1)
