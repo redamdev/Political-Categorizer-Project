@@ -1,5 +1,5 @@
 # @authors: Harshitha M, Nermeen R
-
+# Used for our backend ML training purposes
 
 # Import necessary libraries
 import newspaper
@@ -11,6 +11,8 @@ from nltk.corpus import stopwords
 
 
 
+
+
 #############################################################################################################
 #############################################################################################################
 #############################################################################################################
@@ -19,16 +21,65 @@ from nltk.corpus import stopwords
 #############################################################################################################
 #############################################################################################################
 
+
+# Global list of valid categories
+VALID_CATEGORIES = [
+    'politics', 'news', 'election', 'government', 'policy', 'congress', 'senate', 'house of representatives', 'legislation'
+] # refined search
+
+VALID_CATEGORIES2 = [
+    'abdication', 'aristocracy', 'autonomy', 'balance of power', 'bicameral system', 'bipartisan government', 'bureaucracy',
+    'campaign, political', 'civil liberty', 'civil service', 'conservatism', 'constitution', 'corrupt practices', 
+    'democracy', 'democratic', 'democratic government', 'deportation', 'despotism', 'election', 'executive', 'federal government', 
+    'federation', 'geopolitics', 'government', 'impeachment', 'judiciary', 'legislature', 'lobbying', 'nationalism', 
+    'natural rights', 'political', 'political action', 'political science', 'president', 'vice president', 
+    'republic', 'republicanism', 'republican government', 'separation of powers', 'socialism', 'sovereignty','veto', 'voting'
+] # extended search retreieved from https://www.infoplease.com/encyclopedia/social-science/government/concepts
+
+
+
+# A helper function that validates the given article
+def vailidateArticle(article):
+    # Validation #2: Checks if the article is a video
+    if any(tag in article.html for tag in ['<video', '<iframe', 'youtube.com']):
+        print("Video article detected! Please provide a text-based article.")
+        return False
+
+    # Validation #3: Check if the article is in English
+    if article.meta_lang != 'en':
+        print("Article not in English! Please provide an English article.")
+        return False
+
+    # Validation #4: Check if the article category is valid
+    # Retrieves the article url header, then performs text cleaning
+    article_header = article.url.lower() + ' ' + ' '.join(article.meta_keywords or [])
+    if not any(keyword in article_header for keyword in VALID_CATEGORIES):
+        print("Article is not in a valid category! Please provide a relevant article.")
+        return False
+
+    # Final return statement to indicate that the article is valid
+    return True
+
+
 # Function that scrapes a single article using newspaper3k library
 def scrapeSingleArticle(websiteUrl):
     # Exception Handling to catch errors
     try:        
+        # Validation #1: Checks if the URL is valid (no other formats)
+        if not websiteUrl.startswith(('http://', 'https://')):
+            print(f"Invalid URL Type! Please provide a valid URL.")
+            return None, None, None, None
+
         # Creates an article object of the website
         article = Article(websiteUrl)
 
         # Downloads & parses the article
         article.download()
         article.parse()
+
+        # Validate article using the helper function
+        if not vailidateArticle(article):
+            return None, None, None, None
 
         # Extracts title, then performs text cleaning
         titleTag = article.title
@@ -72,27 +123,33 @@ def scrapeSingleArticle(websiteUrl):
     # Exception Case 1: Unable to retrieve article
     except newspaper.article.ArticleException:
         print(f"Provided URL [{websiteUrl}] not found.")
-        return 'No title' , 'No date' , 'No publisher' , 'No body'
+        return None, None, None, None
 
     # Exception Case 2: All other errors
     except Exception as err:
         print(f"An unexpected error occurred: {err}")
-        return 'No title' , 'No date' , 'No publisher' , 'No body'
+        return None, None, None, None
 
  
 # Testing the scrapeSingleArticle(websiteUrl) function
 url = 'https://www.foxnews.com/us/maryland-woman-pleads-guilty-conspiracy-alleged-extremist-plot-attack-baltimore-power-grid'
 url1 = 'https://www.allsides.com/story/supreme-court-supreme-courts-cfpb-ruling-highlights-disagreements-delegating-congressional'
+url2 = 'https://elpais.com/mexico/elecciones-mexicanas/2024-05-19/el-ultimo-intento-de-la-oposicion-mexicana-para-concurrir-unida-contra-la-candidata-oficialista.html'
+url3 = 'https://edition.cnn.com/2024/05/18/sport/usyk-fury-undisputed-champion-intl-hnk/index.html'
+url4 = 'https://edition.cnn.com/2024/05/18/sport/preakness-stakes-spt-intl/index.html'
+url5 = 'https://edition.cnn.com/2024/05/14/sport/lebron-james-courtside-cleveland-cavaliers-boston-celtics-spt-intl/index.html'
+url6 = 'https://edition.cnn.com/2024/05/18/entertainment/saturday-night-live-season-49-best-sketches/index.html'
+video = 'https://www.cnn.com/videos'
 
-title, date, publisher, body = scrapeSingleArticle(url)
 
-if title:
-    print("Title:", title)
-    print("Publisher:", publisher)
-    print("Date Published:", date)
-    print("Body:", body)
-else:
-    print("Failed to extract article information.")
+title, date, publisher, body = scrapeSingleArticle(video)
+
+print("Title:", title)
+print("Publisher:", publisher)
+print("Date Published:", date)
+print("Body:", body)
+
+
 
 
 
@@ -103,6 +160,7 @@ else:
 #############################################################################################################
 #############################################################################################################
 #############################################################################################################
+
 
 # Function that scrapes all articles from a given webpage
 def scrapeAllArticles(webpageUrl):
@@ -125,24 +183,31 @@ def scrapeAllArticles(webpageUrl):
 
     # Iterates over each article in the webpage
     for article in webpage.articles:
-        print(f"URL #{webpage.articles.index(article) + 1} from webpage: {article.url}")
+        print(f"\nURL #{webpage.articles.index(article) + 1} found from webpage: {article.url}")
         
         # Calls the scrapeSingleArticle() function to scrape the article
         currentArticle = article.url
         title, date, publisher, body = scrapeSingleArticle(currentArticle)
 
+        # Skips invalid articles (title, date, publisher, body fields with None values)
+        if not title or not date or not publisher or not body:
+            continue
+
         # Appends the extracted information to the list
-        if title != 'Non-English article': 
-            articlesInfo.append({
-                'title': title, 
-                'date': date, 
-                'publisher': publisher, 
-                'body': body
-            })
-        
+        articlesInfo.append({
+            'title': title, 
+            'date': date, 
+            'publisher': publisher, 
+            'body': body
+        })
+
+        # Prints for testing
+        print('Articles scraped:', articlesInfo)    
+
     return articlesInfo
 
 
-# Testing the scrapeAllArticles(webpageUrl) function
+'''# Testing the scrapeAllArticles(webpageUrl) function
 webpageUrl1 = 'http://cnn.com'
-scrapeAllArticles(webpageUrl1)
+webpageUrl2 = 'https://elpais.com/america/'
+scrapeAllArticles(webpageUrl1)'''
