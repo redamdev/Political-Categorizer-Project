@@ -28,11 +28,13 @@ VALID_CATEGORIES = [
 ] # refined search
 
 VALID_CATEGORIES2 = [
-    'abdication', 'aristocracy', 'autonomy', 'balance of power', 'bicameral system', 'bipartisan government', 'bureaucracy',
-    'campaign, political', 'civil liberty', 'civil service', 'conservatism', 'constitution', 'corrupt practices', 
-    'democracy', 'democratic', 'democratic government', 'deportation', 'despotism', 'election', 'executive', 'federal government', 
-    'federation', 'geopolitics', 'government', 'impeachment', 'judiciary', 'legislature', 'lobbying', 'nationalism', 
-    'natural rights', 'political', 'political action', 'political science', 'president', 'vice president', 
+    'abdication', 'absolute monarchy', 'allegiance', 'anarchism', 'annexation', 'aristocracy', 'autonomy',
+    'balance of power', 'bicameral system', 'bipartisan government', 'bureaucracy',
+    'campaign, political', 'civil liberty', 'civil service', 'colonization', 'communism', 'conservatism', 'constitution',
+    'convention', 'corrupt practices', 'democracy', 'deportation', 'despotism', 'election', 'embargo', 'executive',
+    'fascism', 'federal government', 'federation', 'geopolitics', 'gerrymander', 'government', 'impeachment',
+    'imperialism', 'judiciary', 'legislature', 'lobbying', 'military government', 'nationalism', 'natural rights', 'parliamentary law',
+    'political', 'political action committee', 'political science', 'populism', 'president', 'vice president', 
     'republic', 'republicanism', 'republican government', 'separation of powers', 'socialism', 'sovereignty','veto', 'voting'
 ] # extended search retreieved from https://www.infoplease.com/encyclopedia/social-science/government/concepts
 
@@ -40,9 +42,10 @@ VALID_CATEGORIES2 = [
 
 # A helper function that validates the given article
 def vailidateArticle(article):
-    # Validation #2: Checks if the article is a video
-    if any(tag in article.html for tag in ['<video', '<iframe', 'youtube.com']):
-        print("Video article detected! Please provide a text-based article.")
+    
+    # Validation #2: Check if the article is not a video article by checking the text size since video articles have more text
+    if (len(article.text.split()) < 100):  
+        print("video articles are not acceptable.")
         return False
 
     # Validation #3: Check if the article is in English
@@ -141,13 +144,13 @@ url5 = 'https://edition.cnn.com/2024/05/14/sport/lebron-james-courtside-clevelan
 url6 = 'https://edition.cnn.com/2024/05/18/entertainment/saturday-night-live-season-49-best-sketches/index.html'
 video = 'https://www.cnn.com/videos'
 
-
+'''
 title, date, publisher, body = scrapeSingleArticle(video)
 
 print("Title:", title)
 print("Publisher:", publisher)
 print("Date Published:", date)
-print("Body:", body)
+print("Body:", body)'''
 
 
 
@@ -202,12 +205,14 @@ def scrapeAllArticles(webpageUrl):
         })
 
         # Prints for testing
-        print('Articles scraped:', articlesInfo)    
+        # print('Articles scraped:', articlesInfo)   
+        print (f"Articles scraped: {len(articlesInfo)}")
+ 
 
     return articlesInfo
 
 
-'''# Testing the scrapeAllArticles(webpageUrl) function
-webpageUrl1 = 'http://cnn.com'
-webpageUrl2 = 'https://elpais.com/america/'
-scrapeAllArticles(webpageUrl1)'''
+# Testing the scrapeAllArticles(webpageUrl) function
+webpageUrl1 = 'https://www.cnn.com/politics'
+#webpageUrl2 = 'https://www.foxnews.com/politics'
+scrapeAllArticles(webpageUrl1)
