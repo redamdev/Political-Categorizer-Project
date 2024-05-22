@@ -196,7 +196,7 @@ def scrapeAllArticles(filename):
     except ValueError as e:
         print("Value Error!", str(e))
     except Exception as e:
-        print("Catch All!", str(e))
+        print("An unexpected error occurred!", str(e))
 
 
 filename = 'articles.xlsm'  
