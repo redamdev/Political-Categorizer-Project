@@ -1,0 +1,33 @@
+@font-face {
+  font-family: 'Ghostbusters';
+  src: url(fonts/GHOSTBUS.TTF) format('truetype');
+}
+
+.LoadingScreen{
+  padding-top: 350px;
+  justify-content: center;
+  align-items: center;
+    
+    text-align: center;
+    margin-top: 20px;
+    font-family: 'Ghostbusters', sans-serif;
+  }
+
+.Error{
+  color: red;
+}
+
+
+.LoadingScreen p {
+  text-align: center;
+  
+  font-size: 1.5rem;
+}
+
+.LoadingScreen l-ring {
+  display: block;
+  margin: 0 auto;
+  
+}
+
+  
