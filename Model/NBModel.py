@@ -71,7 +71,7 @@ class NBModel:
 
 
     
-    def trainModel(self, directory_path, sources, classifiers):
+    def trainModel(self, trainingData):
         """
             Creates and train a new multinomial naive bayes model with news articles by given sources and their given classifiers. The path to the articles is then used to collect training data from every source.
 
@@ -86,8 +86,8 @@ class NBModel:
         
 
         # Collects the data and returns it in a 2D list with [article body, classifier] being the inside form.
-        trainingData = CollectTrainingData()(directory_path, sources, classifiers)
-        x, y = zip(trainingData)
+        #trainingData = CollectTrainingData()(directory_path, sources, classifiers)
+        x, y = trainingData
 
         # Seperates data into being for training or test with 80% of articles being used for training.
         x_train, self.x_test, y_train, self.y_test = train_test_split(x, y, test_size=0.2, random_state=42)
@@ -97,8 +97,8 @@ class NBModel:
 
         # Trains the model with the given articles and classifiers, then saves and returns it.
         self.model.fit(vectorized_x_train, y_train)
-        dump(self.model, 'nb_model.joblib')
-        return self.model
+        dump(self.model, 'Model/nb_model.joblib')
+        dump(self.vectorizer, 'Model/vectorizer.joblib')
 
     
     def predictArticle(self, url):
@@ -112,7 +112,7 @@ class NBModel:
         """
         # Scrapes the article and returns the body, which is then cleaned before being used by the vectorizer and model.
         article = scrapeSingleArticle(url)[3]
-        processed_article = CollectTrainingData._cleanText(article)
+        processed_article = CollectTrainingData()._cleanText(article)
         print(processed_article)
 
         # The cleaned article is transformed by the vectorizer and then given to the model so it can predict its classifier.
@@ -121,10 +121,11 @@ class NBModel:
 
         # For each classifier, the probability of it being that is returned.
         probabilities = self.model.predict_proba(articleTest)[0]
+       
 
         # Prints results
-        print("Predicted Label:", predicted_label)
-        print("Probabilities:", probabilities)
+        print(f"Predicted Label: {predicted_label}")
+        print(f"Probabilities: {probabilities}")
         print()
 
 
@@ -154,7 +155,7 @@ class NBModel:
 
 
 
-    def load_model(self, file_path):
+    def load_model(self, model_path, vectorizer_path):
         """
             Takes a file path as the argument and uses it to load that model into the current session.
  
@@ -167,9 +168,8 @@ class NBModel:
                     The model that has been loaded.
         
         """
-        self.model = load(file_path)
-        return self.model
-
+        self.model = load(model_path)
+        self.vectorizer = load(vectorizer_path)
 
 
 
@@ -177,14 +177,17 @@ def main():
     newsSources = ["AP", "CNN", "NBC", "Forbes", "Newsweek", "Daily_Caller"]
     classes = ["middle", "left", "left", "middle", "right", "right"]
     model = NBModel()
-    model.trainModel("Articles/ScrapedArticles", newsSources, classes)
+    #model.load_model('nb_model.joblib', 'vectorizer.joblib')
+    trainingData = CollectTrainingData()._readyModelData("Model/Articles/CleanedArticles/", newsSources, classes)
+    model.trainModel(trainingData)
     model.testTrainingAccuracy()
 
     articleUrls = [
-        "https://www.nytimes.com/2024/05/28/us/politics/trump-convicted-biden.html",
         "https://www.foxbusiness.com/media/california-businesses-band-together-demand-real-answers-blue-states-high-costs",
         "https://www.cnn.com/2024/05/28/politics/trump-closing-arguments-trial-analysis/index.html"]
 
+    for url in articleUrls:
+        model.predictArticle(url)
     
 main()
 
@@ -209,4 +212,3 @@ for i in range(len(X_test)):
 X_test = []
 Y_test = []
 i = 0
-
