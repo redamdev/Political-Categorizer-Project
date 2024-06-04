@@ -1,4 +1,0 @@
-Model/nb_model.joblib filter=lfs diff=lfs merge=lfs -text
-Model/vectorizer.joblib filter=lfs diff=lfs merge=lfs -text
-*.joblib filter=lfs diff=lfs merge=lfs -text
-Model/*.joblib filter=lfs diff=lfs merge=lfs -text
