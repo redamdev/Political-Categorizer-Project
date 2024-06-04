@@ -1,3 +1,4 @@
 news_project/
 Articles/
-.*
+.gitignore
+.gitattributes
