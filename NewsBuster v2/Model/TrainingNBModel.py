@@ -78,8 +78,8 @@ class TrainingNBModel:
         self.y_test = ()
 
 
-    def trainOldDataModel(self, sources, classifiers):
-        trainingData = _readyModelData("Model/Articles/CleanedArticles/", sources, classifiers)
+    def trainOldDataModel(self, sources):
+        trainingData = _readyModelData("Model/Articles/CleanedArticles/", sources)
 
         x, y = trainingData
 
@@ -94,7 +94,8 @@ class TrainingNBModel:
         dump(self.model, 'Model/nb_model.joblib')
         dump(self.vectorizer, 'Model/vectorizer.joblib')
 
-    def trainNewDataModel(self, directory_path, sources, classifiers):
+
+    def trainNewDataModel(self, directory_path, sources):
         """
             Creates and train a new multinomial naive bayes model with news articles by given sources and their given classifiers. The path to the articles is then used to collect training data from every source.
 
@@ -116,7 +117,7 @@ class TrainingNBModel:
             else:
                 _convertToTxt(source_path, False)
 
-        self.trainOldDataModel(sources, classifiers)
+        self.trainOldDataModel(sources)
 
 
     def load_model(self):
@@ -185,7 +186,13 @@ def _convertToTxt(source_path, isNBC):
         folder_path = os.path.join(source_path, folder)
         for filename in os.listdir(folder_path):
             file_path = os.path.join(folder_path, filename)
-            
+
+            # Finds the file that lists all of the articles in the folder and then deletes it before moving on
+            if(filename == "Files (100)_doclist.docx"):
+                print(file_path)
+                os.remove(file_path)
+                continue
+
             # Tries to create a new Document object by using the file_path. Catches exception and skips file if it does not work
             try:
                 doc = docx.Document(file_path)
@@ -290,7 +297,7 @@ def writeNBCFiles(doc, new_directory_path):
         raise ValueError("There was no article url.")
 
     
-def _readyModelData(directory_path, sources, classifier):
+def _readyModelData(directory_path, sources):
     """
         Collects the body of all txt files and adds them to the data list, along with their classifier, which will be returned to the NaiveBayesModel.
 
@@ -311,7 +318,6 @@ def _readyModelData(directory_path, sources, classifier):
 
     x_test = [] 
     y_test = []
-    numFolder = 0 # Used to know the classifier for the current source folder
 
     # Loops through every source folder
     for source in sources:
@@ -332,36 +338,20 @@ def _readyModelData(directory_path, sources, classifier):
                     body = f.read()
                 # Append the body to x_test and its corresponding classifier to y_test
                 x_test.append(body + "\n\n\n")
-                y_test.append(classifier[numFolder])
-
-        # Add 1 to numFolder after the source folder is looped through completely
-        numFolder += 1
+                y_test.append(sources[source])
     return x_test, y_test
     
 
 
-def cleanText(text):
-    """
-        Cleans text by removing punctuation and stop words, before lowercasing the text.
-        
-        Parameters:
-            @text :: string
-                The text that is going to be cleaned.
-
-        Returns:
-            @cleanedText :: string
-                The newly cleaned text.
-    """
-    text = text.translate(str.maketrans('', '', string.punctuation))
-    text = text.lower()
-    words = text.split()
-    words = [w for w in words if w not in stopwords.words('english')]
-    cleanedText = ' '.join(words)  # Join words back into a string
-    return cleanedText
-
-
-newsSources = ["AP", "CNN", "NBC", "Forbes", "Newsweek", "Daily_Caller"]
-classes = ["middle", "left", "left", "middle", "right", "right"]
+newsSources = {
+                "AP" : "middle",
+                "CNN" : "left",
+                "NBC" : "left", 
+                "Forbes" : "middle", 
+                "Newsweek" : "right", 
+                "Daily_Caller" : "right",
+            }
 model = TrainingNBModel()
-model.trainOldDataModel(newsSources, classes)
+model.trainOldDataModel(newsSources)
+#model.trainNewDataModel("Model/Articles/ScrapedArticles/", newsSources)
 model.testTrainingAccuracy()

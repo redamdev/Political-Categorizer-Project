@@ -71,11 +71,6 @@ def vailidateArticle(article):
 def scrapeSingleArticle(websiteUrl):
     # Exception Handling to catch errors
     try:        
-        # Validation #1: Checks if the URL is valid (no other formats)
-        if not websiteUrl.startswith(('http://', 'https://')):
-            print(f"Invalid URL Type! Please provide a valid URL.")
-            return 
-
         # Creates an article object of the website
         article = Article(websiteUrl)
 
