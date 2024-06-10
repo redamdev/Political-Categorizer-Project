@@ -26,12 +26,12 @@ def predictArticle(url):
         Parameters:
             @url :: string
                 The url of the article wanted scraped.
-        
+
     """
 
     # Loads the model and the vectorizer
-    model = load('NewsBuster v2/Model/nb_model.joblib')
-    vectorizer = load('NewsBuster v2/Model/vectorizer.joblib')
+    model = load('Model/nb_model.joblib')
+    vectorizer = load('Model/vectorizer.joblib')
 
     # Scrapes the article and returns the body, which is then cleaned before being used by the vectorizer and model.
     article = scrapeSingleArticle(url)[3]
