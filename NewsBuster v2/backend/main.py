@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from scraping import scrapingLink
-
+from Model.PredictorModel import predictArticle
 """
 Description:
     Main file for the Flask API server.
@@ -53,15 +53,19 @@ def receive_link():
     # Call the scrapingLink function and unpack the results
     title, date, publisher, body = scrapingLink(link)
     
+    prediction = predictArticle(body)
     # Check if the scraping was successful and return the scraped data
-    if title and date and publisher and body:
+    
+    if title and date and publisher and body and prediction:
         return jsonify({
             'status': 'success',
             'title': title,
             'date': date,
             'publisher': publisher,
-            'body': body
+            'body': body,
+            'prediction': prediction
         })
+        
     else:
         return jsonify({'status': 'failure', 'message': 'Failed to scrape and validate article.'}), 400
 

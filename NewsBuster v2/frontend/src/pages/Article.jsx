@@ -5,13 +5,15 @@ import { Link } from 'react-router-dom';
 
 function Article() {
   const location = useLocation();
-  const { title, date, publisher, body } = location.state;
+  const { title, date, publisher, body, prediction } = location.state;
 
+  
   return (
     <div className={styles.Article}>
       <h1>{title}</h1>
       <p><strong>Date:</strong> {date}</p>
       <p><strong>Publisher:</strong> {publisher}</p>
+      <p><strong>Prediction:</strong> {prediction}</p>
       <p>{body}</p>
     </div>
   );

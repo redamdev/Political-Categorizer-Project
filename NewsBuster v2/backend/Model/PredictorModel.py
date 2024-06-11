@@ -2,7 +2,7 @@
 # Will take the data and use it to train the model and complete testing
 
 # Import necessary libraries
-from scrapeSingleArticle import scrapeSingleArticle
+from Model.scrapeSingleArticle import scrapeSingleArticle
 import os
 import certifi
 from joblib import load
@@ -19,7 +19,7 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 """
 
 
-def predictArticle(url):
+def predictArticle(article):
     """
         Takes the string argument and scrapes the news article before predicting it's classifier using the model.
 
@@ -34,8 +34,8 @@ def predictArticle(url):
     vectorizer = load('Model/vectorizer.joblib')
 
     # Scrapes the article and returns the body, which is then cleaned before being used by the vectorizer and model.
-    article = scrapeSingleArticle(url)[3]
-    print(article)
+    #article = scrapeSingleArticle(url)[3]
+    #print(article)
 
     # The cleaned article is transformed by the vectorizer and then given to the model so it can predict its classifier.
     articleTest = vectorizer.transform([article])
@@ -46,15 +46,18 @@ def predictArticle(url):
 
 
     # Prints results
-    print(f"Predicted Label: {predicted_label}")
+    """ print(f"Predicted Label: {predicted_label}")
     print(f"Probabilities: {probabilities}")
     print()
+    """
 
+    return predicted_label
 
-
+"""
 articleUrls = [
         "https://www.foxbusiness.com/media/california-businesses-band-together-demand-real-answers-blue-states-high-costs",
         "https://www.cnn.com/2024/05/28/politics/trump-closing-arguments-trial-analysis/index.html"]
 
 for url in articleUrls:
     predictArticle(url)
+    """

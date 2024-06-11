@@ -18,7 +18,7 @@ const LoadingScreen = () => {
       try {
 
         // Simulate an API call with a delay
-        await new Promise((resolve) => setTimeout(resolve, 3000));
+        //await new Promise((resolve) => setTimeout(resolve, 3000));
 
         // Send the link to the backend
         const response = await axios.post('http://localhost:8080/api/link', { link: location.state.link }, {
@@ -27,6 +27,7 @@ const LoadingScreen = () => {
           }
         });
 
+        //console.log(response.data);
         if (response.data.status === 'success') {
           // Navigate to the article page with the article data
           navigate('/article', { state: response.data });
