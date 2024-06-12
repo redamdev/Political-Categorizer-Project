@@ -1,0 +1,78 @@
+@font-face {
+    font-family: 'Ghostbusters';
+    src: url('/fonts/GHOSTBUS.TTF') format('truetype'); /* Adjust the path as needed */
+  }
+  
+  .Home {
+    position: relative; /* Ensure positioning for the overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;  /* Full viewport height */
+    background-image: url('https://media1.giphy.com/media/xT8qBbBXJCaodEZIhW/200.gif?cid=6c09b952byd42aldvsuhptahiv9hsmki891w1n4ms1mw32k8&ep=v1_internal_gif_by_id&rid=200.gif&ct=g');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.5); /* Adjust the opacity to make the GIF less visible */
+  }
+  
+  .content {
+    position: relative;
+    z-index: 1; /* Ensure the content is above the overlay */
+  }
+  
+  .Home h1 {
+    font-size: 6rem;
+    padding-bottom: 50px;
+    font-family: 'Ghostbusters', sans-serif;
+    text-align: center;
+  }
+  
+  .SearchBar {
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Ensures vertical alignment */
+    font-family: 'Courier New', Courier, monospace;
+  }
+  
+  .SearchBar form {
+    display: flex;
+    align-items: center;
+  }
+  
+  .SearchBar input {
+    width: 60%;
+    height: 2.5rem;
+    font-size: 1.5rem;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box; /* Ensures padding is included in the width and height */
+  }
+  
+  .SearchBar button {
+    font-size: 1.5rem;
+    font-family: 'Courier New', Courier, monospace;
+    padding: 0.5rem 1rem;
+    margin-left: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    height: 2.5rem; /* Matches the input height */
+  }
+  
+  .Home p {
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.5rem;
+  }
+  

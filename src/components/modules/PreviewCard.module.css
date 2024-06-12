@@ -1,0 +1,118 @@
+/* General settings */
+:root {
+    --primary-font: "Arial", sans-serif;
+    --secondary-font: "Georgia", serif;
+    --primary-color: #333;
+    --secondary-color: #555;
+    --accent-color: #007bff;
+    --background-color: #f9f9f9;
+    --border-color: #ddd;
+    --button-hover-bg-color: #ccc;
+    --left-bg-color: #cce5ff; /* Light blue */
+    --right-bg-color: #f8d7da; /* Light red */
+}
+
+.leftCard {
+    font-family: var(--primary-font);
+    background-color: var(--left-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 20px 0;
+    transition: transform 0.2s;
+    width: 300px; /* Fixed width */
+    height: 400px; /* Fixed height */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.rightCard {
+    font-family: var(--primary-font);
+    background-color: var(--right-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 20px 0;
+    transition: transform 0.2s;
+    width: 300px; /* Fixed width */
+    height: 400px; /* Fixed height */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.title {
+    font-family: var(--secondary-font);
+    font-size: 1.5em;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.label {
+    font-size: 0.9em;
+    color: var(--accent-color);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.date,
+.label {
+    font-size: 0.9em;
+    color: var(--secondary-color);
+    margin-bottom: 5px;
+}
+
+.body {
+    font-size: 1em;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 4; /* Number of lines to show */
+    -webkit-box-orient: vertical;
+}
+
+.button {
+    background-color: lightgray;
+    color: black;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.button:hover {
+    background-color: var(--button-hover-bg-color);
+}
+
+.publisher {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.logo {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+
+.publisher a {
+    color: var(--secondary-color);
+    text-decoration: none;
+}
+
+.publisher a:hover {
+    text-decoration: underline;
+}
