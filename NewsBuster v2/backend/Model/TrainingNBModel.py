@@ -228,9 +228,11 @@ def writeSourceFiles(doc, new_directory_path):
             @new_directory_path :: string
                 The complete path to the new txt file.
     """
-
+    if "/AP/" in new_directory_path:
+        inBody = True
+    else:
+        inBody = False # Used to tell if we are looking at the body of an article
     body = ""
-    inBody = False # Used to tell if we are looking at the body of an article
     for para in doc.paragraphs:  
 
         # If not in the body than it checks if the current line of text enters it, then the loop is moved forward
@@ -333,14 +335,19 @@ def _readyModelData(directory_path, sources):
             for filename in os.listdir(folder_path):
                 file_path = os.path.join(folder_path, filename)
 
-                # Open the file and read the text to body
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    body = f.read()
+                # Open the file and read the text to body then replace all periods with spaces
+                with open(file_path, 'r+', encoding='utf-8') as f:
+                    body = f.read() 
+                    f.seek(0) # Moves file ptr back to start
+                    body = body.replace(".", " ")
+                    f.write(body)
+                    f.truncate() # Erases any extra bytes if new read is smaller than previous
+            
                 # Append the body to x_test and its corresponding classifier to y_test
                 x_test.append(body)
                 y_test.append(sources[source])
     return x_test, y_test
-    
+
 
 
 newsSources = {
@@ -353,6 +360,6 @@ newsSources = {
             }
 model = TrainingNBModel()
 model.trainOldDataModel(newsSources)
-#model.trainNewDataModel("Model/Articles/ScrapedArticles/", newsSources)
+#model.trainNewDataModel("NewsBuster v2/backend/Model/Articles/ScrapedArticles/", newsSources)
 #model.load_model()
 model.testTrainingAccuracy()
