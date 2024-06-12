@@ -1,4 +1,5 @@
-#@author Nermeen Rizk, Harshitha Maddi
+#@author Nermeen Rizk
+#@author Harshitha Maddi
 import newspaper
 from newspaper import Article
 import re
@@ -121,12 +122,7 @@ Specifications:
 def scrapeSingleArticle(websiteUrl):
     # Exception Handling to catch errors
     try:        
-        # Validation #1: Checks if the URL is valid (no other formats)
-        if not websiteUrl.startswith(('http://', 'https://')):
-            print(f"Invalid URL Type! Please provide a valid URL.")
-            return None, None, None, None
-
-
+        
         # Creates an article object of the website
         article = Article(websiteUrl)
 
@@ -175,7 +171,6 @@ def scrapeSingleArticle(websiteUrl):
     except Exception as err:
         print(f"An unexpected error occurred: {err}")
         return None, None, None, None
-
 
 
 
@@ -338,4 +333,5 @@ class TestAll(unittest.TestCase):
 
 
 # Calls the tester class to run the tests
-unittest.main()
+if __name__ == '__main__':
+    unittest.main()
