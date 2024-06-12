@@ -59,7 +59,7 @@ class TrainingNBModel:
     """
 
     # Class Variables
-    vectorizer = CountVectorizer(ngram_range=(2,3))
+    vectorizer = CountVectorizer(ngram_range=(3,3))
     model = MultinomialNB()
 
     
@@ -79,7 +79,7 @@ class TrainingNBModel:
 
 
     def trainOldDataModel(self, sources):
-        trainingData = _readyModelData("Model/Articles/CleanedArticles/", sources)
+        trainingData = _readyModelData("NewsBuster v2/backend/Model/Articles/CleanedArticles/", sources)
 
         x, y = trainingData
 
@@ -91,8 +91,8 @@ class TrainingNBModel:
 
         # Trains the model with the given articles and classifiers, then saves and returns it.
         self.model.fit(vectorized_x_train, y_train)
-        dump(self.model, 'Model/nb_model.joblib')
-        dump(self.vectorizer, 'Model/vectorizer.joblib')
+        dump(self.model, 'NewsBuster v2/backend/Model/nb_model.joblib')
+        dump(self.vectorizer, 'NewsBuster v2/backend/Model/vectorizer.joblib')
 
 
     def trainNewDataModel(self, directory_path, sources):
@@ -133,8 +133,8 @@ class TrainingNBModel:
                     The model that has been loaded.
             
         """
-        self.model = load('Model/nb_model.joblib')
-        self.vectorizer = load("Model/vectorizer.joblib") 
+        self.model = load('NewsBuster v2/backend/Model/nb_model.joblib')
+        self.vectorizer = load("NewsBuster v2/backend/Model/vectorizer.joblib") 
     
 
     def testTrainingAccuracy(self):
@@ -337,7 +337,7 @@ def _readyModelData(directory_path, sources):
                 with open(file_path, 'r', encoding='utf-8') as f:
                     body = f.read()
                 # Append the body to x_test and its corresponding classifier to y_test
-                x_test.append(body + "\n\n\n")
+                x_test.append(body)
                 y_test.append(sources[source])
     return x_test, y_test
     
@@ -354,4 +354,5 @@ newsSources = {
 model = TrainingNBModel()
 model.trainOldDataModel(newsSources)
 #model.trainNewDataModel("Model/Articles/ScrapedArticles/", newsSources)
+#model.load_model()
 model.testTrainingAccuracy()

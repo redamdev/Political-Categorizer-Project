@@ -2,7 +2,10 @@
 # Will take the data and use it to train the model and complete testing
 
 # Import necessary libraries
-from Model.scrapeSingleArticle import scrapeSingleArticle
+from scrapeSingleArticle import scrapeSingleArticle # Runs when debugging
+
+#from Model.scrapeSingleArticle import scrapeSingleArticle # Runs when using web
+
 import os
 import certifi
 from joblib import load
@@ -30,8 +33,13 @@ def predictArticle(article):
     """
 
     # Loads the model and the vectorizer
-    model = load('Model/nb_model.joblib')
-    vectorizer = load('Model/vectorizer.joblib')
+    """ Use with Debugger """
+    model = load('NewsBuster v2/backend/Model/nb_model.joblib')
+    vectorizer = load('NewsBuster v2/backend/Model/vectorizer.joblib')
+
+    """ Use with Web """
+    #model = load('Model/nb_model.joblib')
+    #vectorizer = load('Model/vectorizer.joblib')
 
     # Scrapes the article and returns the body, which is then cleaned before being used by the vectorizer and model.
     #article = scrapeSingleArticle(url)[3]
@@ -53,11 +61,16 @@ def predictArticle(article):
 
     return predicted_label
 
-"""
+
 articleUrls = [
+        "https://www.newsmax.com/politics/nevada-senate-gop/2024/06/12/id/1168415/",
         "https://www.foxbusiness.com/media/california-businesses-band-together-demand-real-answers-blue-states-high-costs",
-        "https://www.cnn.com/2024/05/28/politics/trump-closing-arguments-trial-analysis/index.html"]
+        "https://www.cnn.com/2024/05/28/politics/trump-closing-arguments-trial-analysis/index.html",
+        "https://www.cnn.com/2024/03/17/politics/dark-money-fga-ashcroft-invs/index.html",
+        "https://www.foxnews.com/media/embattled-dolton-mayor-tiffany-henyard-accused-politically-targeting-towns-own-park-district",
+        "https://www.foxnews.com/opinion/how-trump-cracked-code-penetrate-blue-wall"]
 
 for url in articleUrls:
-    predictArticle(url)
-    """
+    body = scrapeSingleArticle(url)[3]
+    print(predictArticle(body))
+

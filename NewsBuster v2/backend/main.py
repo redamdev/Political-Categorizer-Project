@@ -53,17 +53,17 @@ def receive_link():
     # Call the scrapingLink function and unpack the results
     title, date, publisher, body = scrapingLink(link)
     
-    prediction = predictArticle(body)
+    label = predictArticle(body)
     # Check if the scraping was successful and return the scraped data
     
-    if title and date and publisher and body and prediction:
+    if title and date and publisher and body and label:
         return jsonify({
             'status': 'success',
             'title': title,
             'date': date,
             'publisher': publisher,
             'body': body,
-            'prediction': prediction
+            'label': label
         })
         
     else:
