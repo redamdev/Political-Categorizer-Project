@@ -4,9 +4,10 @@
 # Import necessary libraries
 from scrapeSingleArticle import scrapeSingleArticle
 import os
+import re
 import certifi
 import docx
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.model_selection import train_test_split
@@ -59,7 +60,8 @@ class TrainingNBModel:
     """
 
     # Class Variables
-    vectorizer = CountVectorizer(ngram_range=(3,3))
+    vectorizer = TfidfVectorizer(ngram_range=(3,3))
+    #vectorizer = CountVectorizer(ngram_range=(2,3))
     model = MultinomialNB()
 
     
@@ -323,6 +325,12 @@ def _readyModelData(directory_path, sources):
 
     # Loops through every source folder
     for source in sources:
+        if "Manual" in source:
+            bodies, classifiers = readyManualData(source)
+            x_test.extend(bodies)
+            y_test.extend(classifiers)
+            continue
+
         source_path = os.path.join(directory_path, source)
 
         # Loops through all folders at the source path and skips hidden folders like .DSStore that can be automatically added by the system
@@ -350,6 +358,96 @@ def _readyModelData(directory_path, sources):
 
 
 
+def addManualChecks(url, classifier):
+    directoryPath = "NewsBuster v2/backend/Model/Articles/CleanedArticles/"
+    article = scrapeSingleArticle(url)
+    title = article[0]
+    body = article[3]
+
+    print(body)
+    if classifier == "right":
+        folder_path = os.path.join(directoryPath, "RightManual")
+        file = title + ".txt"
+        file_path = os.path.join(folder_path, file)
+        with open(file_path, "w", encoding='utf-8') as f:
+            f.write((body)) 
+
+    elif classifier == "left":
+        folder_path = os.path.join(directoryPath, "LeftManual")
+        file = title + ".txt"
+        file_path = os.path.join(folder_path, file)
+        with open(file_path, "w", encoding='utf-8') as f:
+            f.write((body))  
+
+    elif classifier == "middle":
+        folder_path = os.path.join(directoryPath, "MiddleManual")
+        file = title + ".txt"
+        file_path = os.path.join(folder_path, file)
+        with open(file_path, "w", encoding='utf-8') as f:
+            f.write((body))  
+
+def readyManualData(source):
+    directoryPath = "NewsBuster v2/backend/Model/Articles/CleanedArticles/"
+    folder_path = os.path.join(directoryPath, source)
+ 
+    x_test = [] 
+    y_test = []
+
+    if "Right" in source:
+        classifier = "right"
+    elif "Left" in source:
+        classifier = "left"
+    elif "Middle" in source:
+        classifier = "middle"
+
+    for filename in os.listdir(folder_path):
+        if filename.startswith("."):
+            continue
+        file_path = os.path.join(folder_path, filename)
+
+        # Open the file and read the text to body then replace all periods with spaces
+        with open(file_path, 'r+', encoding='utf-8') as f:
+            body = f.read() 
+            f.seek(0) # Moves file ptr back to start
+            body = body.replace(".", " ")
+            f.write(body)
+            f.truncate() # Erases any extra bytes if new read is smaller than previous
+
+        x_test.append(body)
+        y_test.append(classifier)
+
+    return x_test, y_test
+
+def delete_files_with_multiples(directory, pattern_to_delete):
+    for source in os.listdir(directory):
+        source_path = os.path.join(directory, source)
+        if "Manual" in source:
+             continue
+        if source.startswith("."):
+            continue 
+        # Loops through all folders at the source path and skips hidden folders like .DSStore that can be automatically added by the system
+        for folder in os.listdir(source_path):       
+            if folder.startswith("."):
+                continue
+            
+            # Loops through all files in folder path and stores the complete path as a variable
+            folder_path = os.path.join(source_path, folder)
+            for filename in os.listdir(folder_path):
+                file_path = os.path.join(folder_path, filename)
+    
+                if re.search(pattern_to_delete, filename):
+                    try:
+                        os.remove(file_path)
+                        print(f"Deleted: {file_path}")
+                    except OSError as e:
+                        print(f"Error deleting {file_path}: {e}")
+
+# Usage Example
+directory_to_clean = "NewsBuster v2/backend/Model/Articles/CleanedArticles/"
+pattern = r"\(\d\)"  # Regular expression to match any single digit within parentheses
+
+
+
 newsSources = {
                 "AP" : "middle",
                 "CNN" : "left",
@@ -357,7 +455,14 @@ newsSources = {
                 "Forbes" : "middle", 
                 "Newsweek" : "right", 
                 "Daily_Caller" : "right",
+                "RightManual" : "right",
+                "LeftManual" : "left",
+                "MiddleManual" : "middle"
             }
+
+
+#addManualChecks("https://www.cnn.com/2024/03/17/politics/dark-money-fga-ashcroft-invs/index.html", "left")
+
 model = TrainingNBModel()
 model.trainOldDataModel(newsSources)
 #model.trainNewDataModel("NewsBuster v2/backend/Model/Articles/ScrapedArticles/", newsSources)

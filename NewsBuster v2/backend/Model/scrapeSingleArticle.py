@@ -37,8 +37,8 @@ stopWords = set(stopwords.words('english'))
 
 def cleanBody(articleBody):
     bodyWords = articleBody.split()
-    filteredBody = [word for word in bodyWords if word.lower() not in stopWords]
-    articleBody = ' '.join(filteredBody)
+    #filteredBody = [word for word in bodyWords if word.lower() not in stopWords]
+    articleBody = ' '.join(bodyWords)
     return articleBody
 
 # A helper function that validates the given article

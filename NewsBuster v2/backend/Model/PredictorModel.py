@@ -67,10 +67,13 @@ articleUrls = [
         "https://www.foxbusiness.com/media/california-businesses-band-together-demand-real-answers-blue-states-high-costs",
         "https://www.cnn.com/2024/05/28/politics/trump-closing-arguments-trial-analysis/index.html",
         "https://www.cnn.com/2024/03/17/politics/dark-money-fga-ashcroft-invs/index.html",
-        "https://www.foxnews.com/media/embattled-dolton-mayor-tiffany-henyard-accused-politically-targeting-towns-own-park-district",
-        "https://www.foxnews.com/opinion/how-trump-cracked-code-penetrate-blue-wall"]
+        "https://www.foxnews.com/media/embattled-dolton-mayor-tiffany-henyard-accused-politically-targeting-towns-own-park-district"]
 
+predictions = []
 for url in articleUrls:
     body = scrapeSingleArticle(url)[3]
-    print(predictArticle(body))
+    predictions.append(predictArticle(body))
+
+for predict in predictions:
+    print(predict)
 
