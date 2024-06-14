@@ -61,6 +61,19 @@ def predictArticle(article):
 
     return predicted_label
 
+predictions = []
+bodies = []
+with open("NewsBuster v2/backend/Model/Articles/CleanedArticles/LeftManual/Miriam Adelson and Kyrie.txt", 'r', encoding='utf-8') as f:
+    bodies.append(f.read())
+    
+with open("NewsBuster v2/backend/Model/Articles/CleanedArticles/LeftManual/GOP Senate Hopeful Royce White Seems a Little Mad at The Daily Beast’s Reporting.txt", 'r', encoding='utf-8') as f:
+    bodies.append(f.read())    
+
+with open("NewsBuster v2/backend/Model/Articles/CleanedArticles/RightManual/Who are the Anti-Israel Protestors.txt", 'r', encoding='utf-8') as f:
+    bodies.append(f.read())
+
+for body in bodies:
+    predictions.append(predictArticle(body))
 
 articleUrls = [
         "https://www.newsmax.com/politics/nevada-senate-gop/2024/06/12/id/1168415/",
@@ -69,11 +82,14 @@ articleUrls = [
         "https://www.cnn.com/2024/03/17/politics/dark-money-fga-ashcroft-invs/index.html",
         "https://www.foxnews.com/media/embattled-dolton-mayor-tiffany-henyard-accused-politically-targeting-towns-own-park-district"]
 
-predictions = []
 for url in articleUrls:
     body = scrapeSingleArticle(url)[3]
     predictions.append(predictArticle(body))
 
+i = 1
 for predict in predictions:
-    print(predict)
+    print(f"{i}: {predict}")
+    print()
+    i += 1
+
 

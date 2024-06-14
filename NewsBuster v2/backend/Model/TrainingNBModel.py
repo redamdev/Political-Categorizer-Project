@@ -60,8 +60,9 @@ class TrainingNBModel:
     """
 
     # Class Variables
-    vectorizer = TfidfVectorizer(ngram_range=(3,3))
-    #vectorizer = CountVectorizer(ngram_range=(2,3))
+    #vectorizer = TfidfVectorizer(ngram_range=(1,1))
+    vectorizer = CountVectorizer(ngram_range=(4,4))
+    
     model = MultinomialNB()
 
     
