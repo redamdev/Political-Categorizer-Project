@@ -60,9 +60,7 @@ class TrainingNBModel:
     """
 
     # Class Variables
-    #vectorizer = TfidfVectorizer(ngram_range=(1,1))
-    vectorizer = CountVectorizer(ngram_range=(4,4))
-    
+    vectorizer = TfidfVectorizer(ngram_range=(1,1))
     model = MultinomialNB()
 
     
@@ -82,8 +80,11 @@ class TrainingNBModel:
 
 
     def trainOldDataModel(self, sources):
-        trainingData = _readyModelData("NewsBuster v2/backend/Model/Articles/CleanedArticles/", sources)
-
+        try:
+            trainingData = _readyModelData("NewsBuster v2/backend/Model/Articles/CleanedArticles/", sources)
+        except ValueError:
+            raise ValueError("A source given did not have a corresponding folder.")
+            
         x, y = trainingData
 
         # Seperates data into being for training or test with 80% of articles being used for training.
@@ -112,16 +113,18 @@ class TrainingNBModel:
         """
         
         # Collects the data and returns it in a 2D list with [article body, classifier] being the inside form.
-
-        for source in sources:
-            source_path = os.path.join(directory_path, source)
-            if source == "NBC":
-                _convertToTxt(source_path, True)
-            else:
-                _convertToTxt(source_path, False)
-
-        self.trainOldDataModel(sources)
-
+        try:
+            for source in sources:
+                source_path = os.path.join(directory_path, source)
+                if source == "NBC":
+                    _convertToTxt(source_path, True)
+                else:
+                    _convertToTxt(source_path, False)
+        
+            self.trainOldDataModel(sources)
+        except ValueError:
+            raise ValueError("The directory was invalid or a source given did not have a corresponding folder.")
+            
 
     def load_model(self):
         """
@@ -180,45 +183,47 @@ def _convertToTxt(source_path, isNBC):
                 Caught if the file being opened is not a docx file.
     """
 
-    # Loops through all folders at the source path and skips hidden folders like .DSStore that can be automatically added by the system
-    for folder in os.listdir(source_path):       
-        if folder.startswith("."):
-            continue
-
-        # Loops through all files in folder path and stores the complete path as a variable
-        folder_path = os.path.join(source_path, folder)
-        for filename in os.listdir(folder_path):
-            file_path = os.path.join(folder_path, filename)
-
-            # Finds the file that lists all of the articles in the folder and then deletes it before moving on
-            if(filename == "Files (100)_doclist.docx"):
-                print(file_path)
-                os.remove(file_path)
+    try:
+        # Loops through all folders at the source path and skips hidden folders like .DSStore that can be automatically added by the system
+        for folder in os.listdir(source_path):       
+            if folder.startswith("."):
                 continue
 
-            # Tries to create a new Document object by using the file_path. Catches exception and skips file if it does not work
-            try:
-                doc = docx.Document(file_path)
+            # Loops through all files in folder path and stores the complete path as a variable
+            folder_path = os.path.join(source_path, folder)
+            for filename in os.listdir(folder_path):
+                file_path = os.path.join(folder_path, filename)
 
-                # Changes the parent folder in the path and then creates a new folder at that destination if there is none
-                new_directory_path = folder_path.replace("ScrapedArticles","CleanedArticles") 
-                os.makedirs(new_directory_path, exist_ok=True)  
+                # Finds the file that lists all of the articles in the folder and then deletes it before moving on
+                if(filename == "Files (100)_doclist.docx"):
+                    print(file_path)
+                    os.remove(file_path)
+                    continue
 
-                # Changes the docx tag to a txt and then creates the entire new file path, then returns it
-                txtfile = filename.replace("docx", "txt")
-                if txtfile == filename:
-                    raise ValueError("Is not a docx file.")
-    
-                new_directory_path = os.path.join(new_directory_path, filename.replace("docx", "txt")) 
+                # Tries to create a new Document object by using the file_path. Catches exception and skips file if it does not work
+                try:
+                    doc = docx.Document(file_path)
 
-                # Checks if the source is NBC, which has a different way of scraping the article. Calls helper methods to write the txt files
-                if isNBC:
-                    writeNBCFiles(doc, new_directory_path)
-                else:
-                    writeSourceFiles(doc, new_directory_path)
-            except docx.opc.exceptions.PackageNotFoundError:
-                print(f"Skipping file: {filename} (Not a valid .docx file)")
+                    # Changes the parent folder in the path and then creates a new folder at that destination if there is none
+                    new_directory_path = folder_path.replace("ScrapedArticles","CleanedArticles") 
+                    os.makedirs(new_directory_path, exist_ok=True)  
 
+                    # Changes the docx tag to a txt and then creates the entire new file path, then returns it
+                    txtfile = filename.replace("docx", "txt")
+                    if txtfile == filename:
+                        raise ValueError("Is not a docx file.")
+        
+                    new_directory_path = os.path.join(new_directory_path, filename.replace("docx", "txt")) 
+
+                    # Checks if the source is NBC, which has a different way of scraping the article. Calls helper methods to write the txt files
+                    if isNBC:
+                        writeNBCFiles(doc, new_directory_path)
+                    else:
+                        writeSourceFiles(doc, new_directory_path)
+                except docx.opc.exceptions.PackageNotFoundError:
+                    print(f"Skipping file: {filename} (Not a valid .docx file)")
+    except FileNotFoundError:
+        raise ValueError
 
 
 def writeSourceFiles(doc, new_directory_path):
@@ -324,39 +329,42 @@ def _readyModelData(directory_path, sources):
     x_test = [] 
     y_test = []
 
-    # Loops through every source folder
-    for source in sources:
-        if "Manual" in source:
-            bodies, classifiers = readyManualData(source)
-            x_test.extend(bodies)
-            y_test.extend(classifiers)
-            continue
-
-        source_path = os.path.join(directory_path, source)
-
-        # Loops through all folders at the source path and skips hidden folders like .DSStore that can be automatically added by the system
-        for folder in os.listdir(source_path):       
-            if folder.startswith("."):
+    try:
+        # Loops through every source folder
+        for source in sources:
+            if "Manual" in source:
+                bodies, classifiers = readyManualData(source)
+                x_test.extend(bodies)
+                y_test.extend(classifiers)
                 continue
 
-            # Loops through all files in folder path and stores the complete path as a variable
-            folder_path = os.path.join(source_path, folder)
-            for filename in os.listdir(folder_path):
-                file_path = os.path.join(folder_path, filename)
+            source_path = os.path.join(directory_path, source)
 
-                # Open the file and read the text to body then replace all periods with spaces
-                with open(file_path, 'r+', encoding='utf-8') as f:
-                    body = f.read() 
-                    f.seek(0) # Moves file ptr back to start
-                    body = body.replace(".", " ")
-                    f.write(body)
-                    f.truncate() # Erases any extra bytes if new read is smaller than previous
-            
-                # Append the body to x_test and its corresponding classifier to y_test
-                x_test.append(body)
-                y_test.append(sources[source])
+            # Loops through all folders at the source path and skips hidden folders like .DSStore that can be automatically added by the system
+        
+            for folder in os.listdir(source_path):       
+                if folder.startswith("."):
+                    continue
+
+                # Loops through all files in folder path and stores the complete path as a variable
+                folder_path = os.path.join(source_path, folder)
+                for filename in os.listdir(folder_path):
+                    file_path = os.path.join(folder_path, filename)
+
+                    # Open the file and read the text to body then replace all periods with spaces
+                    with open(file_path, 'r+', encoding='utf-8') as f:
+                        body = f.read() 
+                        f.seek(0) # Moves file ptr back to start
+                        body = body.replace(".", " ")
+                        f.write(body)
+                        f.truncate() # Erases any extra bytes if new read is smaller than previous
+                
+                    # Append the body to x_test and its corresponding classifier to y_test
+                    x_test.append(body)
+                    y_test.append(sources[source])
+    except FileNotFoundError:
+        raise ValueError # Raise a value error that will be caught later on
     return x_test, y_test
-
 
 
 def addManualChecks(url, classifier):
@@ -419,6 +427,8 @@ def readyManualData(source):
 
     return x_test, y_test
 
+
+"""
 def delete_files_with_multiples(directory, pattern_to_delete):
     for source in os.listdir(directory):
         source_path = os.path.join(directory, source)
@@ -443,29 +453,12 @@ def delete_files_with_multiples(directory, pattern_to_delete):
                     except OSError as e:
                         print(f"Error deleting {file_path}: {e}")
 
-# Usage Example
 directory_to_clean = "NewsBuster v2/backend/Model/Articles/CleanedArticles/"
 pattern = r"\(\d\)"  # Regular expression to match any single digit within parentheses
+"""
 
 
-
-newsSources = {
-                "AP" : "middle",
-                "CNN" : "left",
-                "NBC" : "left", 
-                "Forbes" : "middle", 
-                "Newsweek" : "right", 
-                "Daily_Caller" : "right",
-                "RightManual" : "right",
-                "LeftManual" : "left",
-                "MiddleManual" : "middle"
-            }
 
 
 #addManualChecks("https://www.cnn.com/2024/03/17/politics/dark-money-fga-ashcroft-invs/index.html", "left")
 
-model = TrainingNBModel()
-model.trainOldDataModel(newsSources)
-#model.trainNewDataModel("NewsBuster v2/backend/Model/Articles/ScrapedArticles/", newsSources)
-#model.load_model()
-model.testTrainingAccuracy()

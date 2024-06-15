@@ -2,7 +2,7 @@
 # Will take the data and use it to train the model and complete testing
 
 # Import necessary libraries
-from scrapeSingleArticle import scrapeSingleArticle # Runs when debugging
+#from scrapeSingleArticle import scrapeSingleArticle # Runs when debugging
 
 #from Model.scrapeSingleArticle import scrapeSingleArticle # Runs when using web
 
@@ -32,35 +32,30 @@ def predictArticle(article):
 
     """
 
+    # Makes sure a string is given as the argument
+    if not isinstance(article, str):
+        raise ValueError("The argument is not a string.")  
+
     # Loads the model and the vectorizer
     """ Use with Debugger """
-    model = load('NewsBuster v2/backend/Model/nb_model.joblib')
-    vectorizer = load('NewsBuster v2/backend/Model/vectorizer.joblib')
+    #model = load('NewsBuster v2/backend/Model/nb_model.joblib')
+    #vectorizer = load('NewsBuster v2/backend/Model/vectorizer.joblib')
 
     """ Use with Web """
     #model = load('Model/nb_model.joblib')
     #vectorizer = load('Model/vectorizer.joblib')
 
-    # Scrapes the article and returns the body, which is then cleaned before being used by the vectorizer and model.
-    #article = scrapeSingleArticle(url)[3]
-    #print(article)
+    """ Use with Tester"""
+    model = load('nb_model.joblib')
+    vectorizer = load('vectorizer.joblib')
 
     # The cleaned article is transformed by the vectorizer and then given to the model so it can predict its classifier.
     articleTest = vectorizer.transform([article])
     predicted_label = model.predict(articleTest)[0]
 
-    # For each classifier, the probability of it being that is returned.
-    probabilities = model.predict_proba(articleTest)[0]
-
-
-    # Prints results
-    """ print(f"Predicted Label: {predicted_label}")
-    print(f"Probabilities: {probabilities}")
-    print()
-    """
-
     return predicted_label
 
+"""
 predictions = []
 bodies = []
 with open("NewsBuster v2/backend/Model/Articles/CleanedArticles/LeftManual/Miriam Adelson and Kyrie.txt", 'r', encoding='utf-8') as f:
@@ -91,5 +86,5 @@ for predict in predictions:
     print(f"{i}: {predict}")
     print()
     i += 1
-
+"""
 
